@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractUser
 from datetime import datetime, timedelta
 
 
@@ -19,7 +19,8 @@ class Users(AbstractUser):
     )
     city = models.CharField(max_length=100, verbose_name='Город')
     gender = models.CharField(choices=GENDER_CHOICES, verbose_name='Пол')
-    birthday = models.DateField(auto_now=False, verbose_name='Дата рождения', validators=[validate_birth_date], null=True)
+    birthday = models.DateField(auto_now=False, verbose_name='Дата рождения', validators=[validate_birth_date],
+                                null=True)
     who_search = models.TextField(verbose_name='Кого ищу')
     photo = models.ImageField(upload_to="photos/")
     about_me = models.TextField(verbose_name='О себе')
@@ -27,4 +28,3 @@ class Users(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-
