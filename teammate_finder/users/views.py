@@ -1,12 +1,14 @@
+from django.db.models.functions import ExtractYear
 from django.shortcuts import render
 from rest_framework import generics
-from django.core.paginator import Paginator
+from django.db.models import Value
+from django.utils import timezone
 from .models import Users
 from .serializers import TeammatesSerializer
 
 
 # Create your views here.
 class TeammatesViews(generics.ListAPIView):
-    # queryset = Paginator(Users.objects.all(), 50)
-    queryset = Users.objects.all()
+    queryset = Users.objects.annotate(age=ExtractYear(Value(timezone.now())) - ExtractYear('birthday'))
     serializer_class = TeammatesSerializer
+
