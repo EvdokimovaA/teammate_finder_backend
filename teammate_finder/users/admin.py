@@ -4,7 +4,7 @@ from .models import Users
 
 class UsersAdmin(admin.ModelAdmin):
     list_display = ('id', 'username', 'first_name', 'last_name',
-                    'city', 'gender', 'birthday', 'who_search', 'photo', 'about_me')
+                    'city', 'gender', 'birthday', 'who_search', 'photo', 'about_me', 'password')
     search_fields = ('username', 'id',)
     readonly_fields = ('date_joined', 'last_login')
 

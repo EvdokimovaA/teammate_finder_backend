@@ -6,8 +6,8 @@ from datetime import datetime, timedelta, date
 
 class Users(AbstractUser):
     GENDER_CHOICES = (
-        ('М', 'Мужской'),
-        ('Ж', 'Женский'),
+        ('Мужской', 'Мужской'),
+        ('Женский', 'Женский'),
     )
     city = models.CharField(max_length=100, verbose_name='Город')
     gender = models.CharField(choices=GENDER_CHOICES, verbose_name='Пол')
