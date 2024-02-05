@@ -19,3 +19,18 @@ class Users(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+
+class Subscriptions(models.Model):
+    user_id = models.BigIntegerField(verbose_name='user_id')
+    subscription_id = models.BigIntegerField(verbose_name='subscription_id')
+
+
+class Subscribers(models.Model):
+    user_id = models.BigIntegerField(verbose_name='user_id')
+    subscriber_id = models.BigIntegerField(verbose_name='subscriber_id')
+
+
+class Friends(models.Model):
+    user_id = models.BigIntegerField(verbose_name='user_id')
+    friend_id = models.BigIntegerField(verbose_name='friend_id')

@@ -39,21 +39,37 @@ class RegistrationSerializer(serializers.ModelSerializer):
         new_user.save()
         return new_user
 
-    def get_token(self, user):
-        refresh = RefreshToken.for_user(user)
-        return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
+
+# class LoginSerializer(serializers.Serializer):
+#     email = serializers.CharField(max_length=255)
+#     username = serializers.CharField(max_length=255, read_only=True)
+#     password = serializers.CharField(max_length=128, write_only=True)
+#     token = serializers.CharField(max_length=255, read_only=True)
+#
+#     def validate(self, data):
+#         email = data.get('email', None)
+#         username = data.get('username', None)
+#         password = data.get('password', None)
+#
+#         if email is None:
+#             raise serializers.ValidationError(
+#                 'Не указан email'
+#             )
+#
+#         if password is None:
+#             raise serializers.ValidationError(
+#                 'Не указан пароль'
+#             )
+#
+#         # user = authenticate(email=data['email'], password=data['password'])
+#         user = authenticate(username=username, password=password)
+#         if not user:
+#             raise ValidationError('Неверный email или пароль')
 
 
-class UserLoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
-
-    ##
-    def check_user(self, clean_data):
-        user = authenticate(username=clean_data['email'], password=clean_data['password'])
-        if not user:
-            raise ValidationError('user not found')
-        return user
+# class LoginSerializer(serializers.ModelSerializer):
+#     email = serializers.EmailField(max_length=255)
+#
+#     class Meta:
+#         model = Users
+#         fields = ['email', 'password']
