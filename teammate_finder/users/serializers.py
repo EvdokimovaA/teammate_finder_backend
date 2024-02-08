@@ -24,9 +24,10 @@ class UsersSerializer(serializers.ModelSerializer):
 class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
-        fields = ('username', 'first_name', 'last_name', 'gender', 'birthday', 'email', 'password')
+        fields = ('username', 'first_name', 'last_name', 'gender', 'birthday', 'email', 'password', 'city')
 
     def create(self, validated_data):
+        city = validated_data.get('city')
         new_user = Users.objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
@@ -36,6 +37,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name']
         )
+        if city is not None:
+            new_user.city = city
         new_user.save()
         return new_user
 
