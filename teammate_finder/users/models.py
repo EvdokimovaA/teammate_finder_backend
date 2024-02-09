@@ -21,16 +21,23 @@ class Users(AbstractUser):
         verbose_name_plural = 'Пользователи'
 
 
-class Subscriptions(models.Model):
-    user_id = models.BigIntegerField(verbose_name='user_id')
-    subscription_id = models.BigIntegerField(verbose_name='subscription_id')
-
-
 class Subscribers(models.Model):
-    user_id = models.BigIntegerField(verbose_name='user_id')
-    subscriber_id = models.BigIntegerField(verbose_name='subscriber_id')
+    user1_id = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, verbose_name='Пользователь',
+                                 related_name='subscriber1')
+    user2_id = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, verbose_name='Подписчик',
+                                 related_name='subscriber2')
+    is_subscribed1 = models.BooleanField(verbose_name='Подписка user1', default=False)
+    is_subscribed2 = models.BooleanField(verbose_name='Подписка user2', default=False)
+
+    class Meta:
+        verbose_name = 'Подписчик'
+        verbose_name_plural = 'Подписчики'
 
 
 class Friends(models.Model):
     user_id = models.BigIntegerField(verbose_name='user_id')
     friend_id = models.BigIntegerField(verbose_name='friend_id')
+
+    class Meta:
+        verbose_name = 'Друг'
+        verbose_name_plural = 'Друзья'

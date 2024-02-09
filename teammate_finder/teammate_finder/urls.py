@@ -21,9 +21,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('teammates/', include('users.urls')),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # вводишь username и пароль и
-    # получаешь access и refresh токены
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # получение нового access токена по
-    # refresh токену
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify')  # ?? проверка валидности токена ??
+    # вводишь username и пароль и получаешь access и refresh токены
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # получение нового access токена по refresh
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # ?? проверка валидности токена ??
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify')
 ]

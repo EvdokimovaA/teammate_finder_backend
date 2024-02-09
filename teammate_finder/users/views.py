@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.contrib.auth import authenticate
 
-from .models import Users
-from .serializers import UsersSerializer, RegistrationSerializer  # , LoginSerializer
+from .models import Users, Subscribers
+from .serializers import UsersSerializer, RegistrationSerializer, SubscribersSerializer  # , LoginSerializer
 
 
 # Create your views here.
@@ -37,6 +37,21 @@ class RegistrationAPIView(APIView):
                 'answer': 'успешно'
             },
             status=status.HTTP_201_CREATED)
+
+
+class SubscribersAPIView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = SubscribersSerializer
+
+    def get(self, request, user_id):
+        queryset1 = Subscribers.objects.filter(user1_id=user_id, is_subscribed2=True)
+        queryset2 = Subscribers.objects.filter(user2_id=user_id, is_subscribed1=True)
+
+        queryset = queryset1.union(queryset2)
+
+        serializer = SubscribersSerializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 # class LoginAPIView(APIView):
 #     permission_classes = [AllowAny]

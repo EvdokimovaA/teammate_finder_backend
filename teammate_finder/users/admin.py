@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Users
+from .models import Users, Subscribers
 
 
 class UsersAdmin(admin.ModelAdmin):
@@ -10,3 +10,11 @@ class UsersAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Users, UsersAdmin)
+
+
+class SubscribersAdmin(admin.ModelAdmin):
+    list_display = ('user1_id', 'user2_id', 'is_subscribed1', 'is_subscribed2')
+    search_fields = ('user1_id', 'user2_id',)
+
+
+admin.site.register(Subscribers, SubscribersAdmin)

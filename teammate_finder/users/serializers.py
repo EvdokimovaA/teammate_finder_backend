@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Users
+from .models import Users, Subscribers
 
 
 class UsersSerializer(serializers.ModelSerializer):
@@ -18,7 +18,13 @@ class UsersSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Users
-        fields = ('username', 'first_name', 'last_name', 'city', 'age', 'gender', 'birthday')
+        fields = ('username', 'first_name', 'last_name', 'city', 'age', 'gender', 'birthday', 'about_me')
+
+
+class SubscribersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscribers
+        fields = ('user1_id', 'user2_id', 'is_subscribed1', 'is_subscribed2')
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -41,7 +47,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
             new_user.city = city
         new_user.save()
         return new_user
-
 
 # class LoginSerializer(serializers.Serializer):
 #     email = serializers.CharField(max_length=255)
