@@ -1,6 +1,6 @@
 from django.db.models.functions import ExtractYear
 from rest_framework import generics, status
-from django.db.models import Value
+from django.db.models import Value, Q
 from django.utils import timezone
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -10,13 +10,14 @@ from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.contrib.auth import authenticate
 
 from .models import Users, Subscribers
-from .serializers import UsersSerializer, RegistrationSerializer, SubscribersSerializer  # , LoginSerializer
+from .serializers import UsersSerializer, RegistrationSerializer, SubscribersSerializer
 
 
 # Create your views here.
 class UsersViews(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
-    queryset = Users.objects.annotate(age=ExtractYear(Value(timezone.now())) - ExtractYear('birthday'))
+    # queryset = Users.objects.annotate(age=ExtractYear(Value(timezone.now())) - ExtractYear('birthday'))
+    queryset = Users.objects.all()
     serializer_class = UsersSerializer
 
 
@@ -28,9 +29,6 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        # user = serializer.save()
-        # access_token = AccessToken.for_user(user)
-        # refresh_token = RefreshToken.for_user(user)
 
         return Response(
             {
@@ -44,14 +42,11 @@ class SubscribersAPIView(APIView):
     serializer_class = SubscribersSerializer
 
     def get(self, request, user_id):
-        queryset1 = Subscribers.objects.filter(user1_id=user_id, is_subscribed2=True)
-        queryset2 = Subscribers.objects.filter(user2_id=user_id, is_subscribed1=True)
-
-        queryset = queryset1.union(queryset2)
-
-        serializer = SubscribersSerializer(queryset, many=True)
-        return Response(serializer.data)
-
+        subscribers = Subscribers.objects.filter(
+            Q(user1_id=user_id, is_subscribed2=True) | Q(user2_id=user_id, is_subscribed1=True)
+        ).select_related('user1_id', 'user2_id')
+        serialized_data = SubscribersSerializer(subscribers, many=True)
+        return Response(serialized_data.data)
 
 # class LoginAPIView(APIView):
 #     permission_classes = [AllowAny]

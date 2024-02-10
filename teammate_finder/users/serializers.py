@@ -7,24 +7,56 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Users, Subscribers
 
 
+def get_age_global(birthday):
+    today = datetime.date.today()
+    age = today.year - birthday.year - (
+            (today.month, today.day) < (birthday.month, birthday.day))
+    return age
+
 class UsersSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
 
     def get_age(self, instance):
-        today = datetime.date.today()
-        age = today.year - instance.birthday.year - (
-                (today.month, today.day) < (instance.birthday.month, instance.birthday.day))
-        return age
+        return get_age_global(instance.birthday)
 
     class Meta:
         model = Users
         fields = ('username', 'first_name', 'last_name', 'city', 'age', 'gender', 'birthday', 'about_me')
 
 
+
 class SubscribersSerializer(serializers.ModelSerializer):
+    user1 = serializers.SerializerMethodField()
+    user2 = serializers.SerializerMethodField()
+
     class Meta:
         model = Subscribers
-        fields = ('user1_id', 'user2_id', 'is_subscribed1', 'is_subscribed2')
+        fields = ('user1', 'user2')
+
+    def get_user1(self, obj):
+        return {
+            'username': obj.user1_id.username,
+            'user_id': obj.user1_id.id,
+            'first_name': obj.user1_id.first_name,
+            'last_name': obj.user1_id.last_name,
+            'city': obj.user1_id.city,
+            'gender': obj.user1_id.gender,
+            'about_me': obj.user1_id.about_me,
+            'age': get_age_global(obj.user1_id.birthday)
+
+        }
+
+    def get_user2(self, obj):
+        return {
+            'username': obj.user2_id.username,
+            'user_id': obj.user2_id.id,
+            'first_name': obj.user2_id.first_name,
+            'last_name': obj.user2_id.last_name,
+            'city': obj.user2_id.city,
+            'gender': obj.user2_id.gender,
+            'about_me': obj.user2_id.about_me,
+            'age': get_age_global(obj.user2_id.birthday)
+        }
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
