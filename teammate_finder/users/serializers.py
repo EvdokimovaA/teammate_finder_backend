@@ -13,6 +13,7 @@ def get_age_global(birthday):
             (today.month, today.day) < (birthday.month, birthday.day))
     return age
 
+
 class UsersSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
 
@@ -24,39 +25,43 @@ class UsersSerializer(serializers.ModelSerializer):
         fields = ('username', 'first_name', 'last_name', 'city', 'age', 'gender', 'birthday', 'about_me')
 
 
-
 class SubscribersSerializer(serializers.ModelSerializer):
-    user1 = serializers.SerializerMethodField()
-    user2 = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
 
     class Meta:
         model = Subscribers
-        fields = ('user1', 'user2')
+        fields = ('user',)
 
-    def get_user1(self, obj):
+    def get_user(self, obj):
+        request_user_id = self.context['request'].user.id
+        if obj.user1_id.id == request_user_id:
+            user_obj = obj.user2_id
+        else:
+            user_obj = obj.user1_id
+
         return {
-            'username': obj.user1_id.username,
-            'user_id': obj.user1_id.id,
-            'first_name': obj.user1_id.first_name,
-            'last_name': obj.user1_id.last_name,
-            'city': obj.user1_id.city,
-            'gender': obj.user1_id.gender,
-            'about_me': obj.user1_id.about_me,
-            'age': get_age_global(obj.user1_id.birthday)
-
+            'username': user_obj.username,
+            'user_id': user_obj.id,
+            'first_name': user_obj.first_name,
+            'last_name': user_obj.last_name,
+            'city': user_obj.city,
+            'gender': user_obj.gender,
+            'about_me': user_obj.about_me,
+            'age': get_age_global(user_obj.birthday)
         }
 
-    def get_user2(self, obj):
-        return {
-            'username': obj.user2_id.username,
-            'user_id': obj.user2_id.id,
-            'first_name': obj.user2_id.first_name,
-            'last_name': obj.user2_id.last_name,
-            'city': obj.user2_id.city,
-            'gender': obj.user2_id.gender,
-            'about_me': obj.user2_id.about_me,
-            'age': get_age_global(obj.user2_id.birthday)
-        }
+
+def get_user2(self, obj):
+    return {
+        'username': obj.user2_id.username,
+        'user_id': obj.user2_id.id,
+        'first_name': obj.user2_id.first_name,
+        'last_name': obj.user2_id.last_name,
+        'city': obj.user2_id.city,
+        'gender': obj.user2_id.gender,
+        'about_me': obj.user2_id.about_me,
+        'age': get_age_global(obj.user2_id.birthday)
+    }
 
 
 class RegistrationSerializer(serializers.ModelSerializer):

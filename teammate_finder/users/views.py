@@ -38,14 +38,15 @@ class RegistrationAPIView(APIView):
 
 
 class SubscribersAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = SubscribersSerializer
 
-    def get(self, request, user_id):
+    def get(self, request):
+        user_id = request.user.id
         subscribers = Subscribers.objects.filter(
             Q(user1_id=user_id, is_subscribed2=True) | Q(user2_id=user_id, is_subscribed1=True)
         ).select_related('user1_id', 'user2_id')
-        serialized_data = SubscribersSerializer(subscribers, many=True)
+        serialized_data = SubscribersSerializer(subscribers, many=True, context={"request": request})
         return Response(serialized_data.data)
 
 # class LoginAPIView(APIView):
