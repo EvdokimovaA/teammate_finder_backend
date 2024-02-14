@@ -35,8 +35,10 @@ class Subscribers(models.Model):
 
 
 class Friends(models.Model):
-    user_id = models.BigIntegerField(verbose_name='user_id')
-    friend_id = models.BigIntegerField(verbose_name='friend_id')
+    friend1_id = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, verbose_name='Пользователь',
+                                   related_name='friend1_id')
+    friend2_id = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, verbose_name='Друг',
+                                   related_name='friend2_id')
 
     class Meta:
         verbose_name = 'Друг'

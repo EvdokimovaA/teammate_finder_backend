@@ -1,15 +1,10 @@
-from django.db.models.functions import ExtractYear
 from rest_framework import generics, status
-from django.db.models import Value, Q
-from django.utils import timezone
-from rest_framework.exceptions import AuthenticationFailed
+from django.db.models import Q, Model
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
-from django.contrib.auth import authenticate
 
-from .models import Users, Subscribers
+from .models import Users, Subscribers, Friends
 from .serializers import UsersSerializer, RegistrationSerializer, SubscribersSerializer
 
 
@@ -49,50 +44,30 @@ class SubscribersAPIView(APIView):
         serialized_data = SubscribersSerializer(subscribers, many=True, context={"request": request})
         return Response(serialized_data.data)
 
-# class LoginAPIView(APIView):
-#     permission_classes = [AllowAny]
-# serializer_class = LoginSerializer
+    def post(self, request):
+        """
+        предполагаемый вид входных данных:
+        {
+            'user_id': id, # id пользователя, на которого направлено действие
+            'is_accept': True/False # True, если у пользователя есть подписчик и надо добавить в друзья
+            'subscribe': True/False # True, если надо первым подписаться (создание новой записи в БД)
+        }
+        is_accept и subscribe всегда должны иметь противоположное значение
+        """
+        user1_id = request.user.id  # тот, кто послал запрос на взаимную подписку
+        user2_id = request.user_id
+        if request.is_accept:
+            try:
+                subscriber = Subscribers.objects.get(user1_id=user1_id, user2_id=user2_id)
+                subscriber.delete()
+                friend = Friends(friend1_id=user1_id, friend2_id=user2_id)
+                friend.save()
+            except Model.DoesNotExist:
+                subscriber = Subscribers.objects.get(user1_id=user2_id, user2_id=user1_id)
+                subscriber.delete()
+                friend = Friends(friend1_id=user2_id, friend2_id=user1_id)
+                friend.save()
 
-# def post(self, request):
-#     serializer = self.serializer_class(data=request.data)
-#     serializer.is_valid(raise_exception=True)
-#
-#     return Response(serializer.data, status=status.HTTP_200_OK)
-# def post(self, request):
-# serializer = LoginSerializer(data=request.data)
-# serializer.is_valid(raise_exception=True)
-# email = serializer.data.get('email')
-# password = serializer.data.get('password')
-# user = authenticate(email=email, password=password)
-# if user is not None:
-#     access_token = AccessToken.for_user(user)
-#     refresh_token = RefreshToken.for_user(user)
-#     return Response({
-#         'access_token': str(access_token),
-#         'refresh_token': str(refresh_token),
-#         'msg': 'Login Success'
-#     }, status=status.HTTP_200_OK)
-# else:
-#     return Response({'errors': 'Email or Password is not Valid'},
-#                     status=status.HTTP_404_NOT_FOUND)
-#
-# email = request.data['email']
-# password = request.data['password']
-#
-# user = Users.objects.filter(email=email).first()
-#
-# if user is None:
-#     raise AuthenticationFailed('User not found!')
-#
-# if not user.check_password(password):
-#     raise AuthenticationFailed('Incorrect password!')
-#
-# access_token = AccessToken.for_user(user)
-# refresh_token = RefreshToken.for_user(user)
-#
-# return Response(
-#     {
-#         'access_token': access_token,
-#         'refresh_token': refresh_token,
-#     },
-#     status=status.HTTP_200_OK)
+        if request.subscribe:
+            subscriber = Subscribers(user1_id=user1_id, user2_id=user2_id, is_subscribed1=True)
+            subscriber.save()

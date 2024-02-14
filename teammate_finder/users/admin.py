@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Users, Subscribers
+from .models import Users, Subscribers, Friends
 
 
 class UsersAdmin(admin.ModelAdmin):
@@ -18,3 +18,11 @@ class SubscribersAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Subscribers, SubscribersAdmin)
+
+
+class FriendsAdmin(admin.ModelAdmin):
+    list_display = ('friend1_id', 'friend2_id')
+    readonly_fields = ('friend1_id', 'friend2_id')
+
+
+admin.site.register(Friends, FriendsAdmin)
