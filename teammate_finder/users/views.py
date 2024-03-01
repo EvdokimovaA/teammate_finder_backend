@@ -56,7 +56,6 @@ class SubscribersAPIView(APIView):
         """
         user1 = Users.objects.get(id=request.data['user_id1'])  # тот, кто послал запрос на взаимную подписку
         user2 = Users.objects.get(id=request.data['user_id2'])
-        print(request.data['is_accept'])
         if request.data['is_accept']:
             try:
                 subscriber = Subscribers.objects.get(user1_id=user1, user2_id=user2)
