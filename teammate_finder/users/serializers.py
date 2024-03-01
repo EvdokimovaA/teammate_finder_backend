@@ -51,19 +51,6 @@ class SubscribersSerializer(serializers.ModelSerializer):
         }
 
 
-def get_user2(self, obj):
-    return {
-        'username': obj.user2_id.username,
-        'user_id': obj.user2_id.id,
-        'first_name': obj.user2_id.first_name,
-        'last_name': obj.user2_id.last_name,
-        'city': obj.user2_id.city,
-        'gender': obj.user2_id.gender,
-        'about_me': obj.user2_id.about_me,
-        'age': get_age_global(obj.user2_id.birthday)
-    }
-
-
 class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
@@ -84,37 +71,3 @@ class RegistrationSerializer(serializers.ModelSerializer):
             new_user.city = city
         new_user.save()
         return new_user
-
-# class LoginSerializer(serializers.Serializer):
-#     email = serializers.CharField(max_length=255)
-#     username = serializers.CharField(max_length=255, read_only=True)
-#     password = serializers.CharField(max_length=128, write_only=True)
-#     token = serializers.CharField(max_length=255, read_only=True)
-#
-#     def validate(self, data):
-#         email = data.get('email', None)
-#         username = data.get('username', None)
-#         password = data.get('password', None)
-#
-#         if email is None:
-#             raise serializers.ValidationError(
-#                 'Не указан email'
-#             )
-#
-#         if password is None:
-#             raise serializers.ValidationError(
-#                 'Не указан пароль'
-#             )
-#
-#         # user = authenticate(email=data['email'], password=data['password'])
-#         user = authenticate(username=username, password=password)
-#         if not user:
-#             raise ValidationError('Неверный email или пароль')
-
-
-# class LoginSerializer(serializers.ModelSerializer):
-#     email = serializers.EmailField(max_length=255)
-#
-#     class Meta:
-#         model = Users
-#         fields = ['email', 'password']

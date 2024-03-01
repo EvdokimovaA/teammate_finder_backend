@@ -3,7 +3,6 @@ from django.db.models import Q, Model
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from .models import Users, Subscribers, Friends
 from .serializers import UsersSerializer, RegistrationSerializer, SubscribersSerializer
 
@@ -33,7 +32,7 @@ class RegistrationAPIView(APIView):
 
 
 class SubscribersAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = SubscribersSerializer
 
     def get(self, request):
@@ -48,26 +47,31 @@ class SubscribersAPIView(APIView):
         """
         предполагаемый вид входных данных:
         {
-            'user_id': id, # id пользователя, на которого направлено действие
+            'user_id1': id, # id пользователя, отправившего запрос
+            'user_id2': id, # id пользователя, на которого направлено действие
             'is_accept': True/False # True, если у пользователя есть подписчик и надо добавить в друзья
             'subscribe': True/False # True, если надо первым подписаться (создание новой записи в БД)
         }
         is_accept и subscribe всегда должны иметь противоположное значение
         """
-        user1_id = request.user.id  # тот, кто послал запрос на взаимную подписку
-        user2_id = request.user_id
-        if request.is_accept:
+        user1 = Users.objects.get(id=request.data['user_id1'])  # тот, кто послал запрос на взаимную подписку
+        user2 = Users.objects.get(id=request.data['user_id2'])
+        print(request.data['is_accept'])
+        if request.data['is_accept']:
             try:
-                subscriber = Subscribers.objects.get(user1_id=user1_id, user2_id=user2_id)
+                subscriber = Subscribers.objects.get(user1_id=user1, user2_id=user2)
                 subscriber.delete()
-                friend = Friends(friend1_id=user1_id, friend2_id=user2_id)
-                friend.save()
-            except Model.DoesNotExist:
-                subscriber = Subscribers.objects.get(user1_id=user2_id, user2_id=user1_id)
-                subscriber.delete()
-                friend = Friends(friend1_id=user2_id, friend2_id=user1_id)
+                friend = Friends(friend1_id=user1, friend2_id=user2)
                 friend.save()
 
-        if request.subscribe:
-            subscriber = Subscribers(user1_id=user1_id, user2_id=user2_id, is_subscribed1=True)
+            except Subscribers.DoesNotExist:
+                subscriber = Subscribers.objects.get(user1_id=user2, user2_id=user1)
+                subscriber.delete()
+                friend = Friends(friend1_id=user2, friend2_id=user1)
+                friend.save()
+            return Response({'answer': 'успешно добавлен в друзья'}, status=status.HTTP_200_OK)
+
+        if request.data['subscribe']:
+            subscriber = Subscribers(user1_id=user1, user2_id=user2, is_subscribed1=True)
             subscriber.save()
+            return Response({'answer': 'успешно подписан'}, status=status.HTTP_200_OK)
