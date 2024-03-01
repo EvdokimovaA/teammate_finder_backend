@@ -44,33 +44,38 @@ class SubscribersAPIView(APIView):
         return Response(serialized_data.data)
 
     def post(self, request):
+        user1 = Users.objects.get(id=request.data['user_id1'])  # тот, кто послал запрос на подписку
+        user2 = Users.objects.get(id=request.data['user_id2'])
+        subscriber = Subscribers(user1_id=user1, user2_id=user2, is_subscribed1=True)
+        subscriber.save()
+        return Response({'answer': 'успешно подписан'}, status=status.HTTP_200_OK)
+
+    def put(self, request):
         """
         предполагаемый вид входных данных:
         {
             'user_id1': id, # id пользователя, отправившего запрос
-            'user_id2': id, # id пользователя, на которого направлено действие
-            'is_accept': True/False # True, если у пользователя есть подписчик и надо добавить в друзья
-            'subscribe': True/False # True, если надо первым подписаться (создание новой записи в БД)
+            'user_id2': id, # id пользователя, которого надо добавить в друзья
         }
-        is_accept и subscribe всегда должны иметь противоположное значение
         """
         user1 = Users.objects.get(id=request.data['user_id1'])  # тот, кто послал запрос на взаимную подписку
         user2 = Users.objects.get(id=request.data['user_id2'])
-        if request.data['is_accept']:
-            try:
-                subscriber = Subscribers.objects.get(user1_id=user1, user2_id=user2)
-                subscriber.delete()
-                friend = Friends(friend1_id=user1, friend2_id=user2)
-                friend.save()
+        try:
+            subscriber = Subscribers.objects.get(user1_id=user1, user2_id=user2)
+            subscriber.delete()
+            friend = Friends(friend1_id=user1, friend2_id=user2)
+            friend.save()
 
-            except Subscribers.DoesNotExist:
-                subscriber = Subscribers.objects.get(user1_id=user2, user2_id=user1)
-                subscriber.delete()
-                friend = Friends(friend1_id=user2, friend2_id=user1)
-                friend.save()
-            return Response({'answer': 'успешно добавлен в друзья'}, status=status.HTTP_200_OK)
+        except Subscribers.DoesNotExist:
+            subscriber = Subscribers.objects.get(user1_id=user2, user2_id=user1)
+            subscriber.delete()
+            friend = Friends(friend1_id=user2, friend2_id=user1)
+            friend.save()
+        return Response({'answer': 'успешно добавлен в друзья'}, status=status.HTTP_200_OK)
 
-        if request.data['subscribe']:
-            subscriber = Subscribers(user1_id=user1, user2_id=user2, is_subscribed1=True)
-            subscriber.save()
-            return Response({'answer': 'успешно подписан'}, status=status.HTTP_200_OK)
+    def delete(self, request):
+        user1 = Users.objects.get(id=request.data['user_id1'])  # тот, кто послал запрос на взаимную подписку
+        user2 = Users.objects.get(id=request.data['user_id2'])
+        subscriber = Subscribers.objects.get(user1_id=user1, user2_id=user2)
+        subscriber.delete()
+        return Response({'answer': 'подписка успешно отменена'}, status=status.HTTP_200_OK)
