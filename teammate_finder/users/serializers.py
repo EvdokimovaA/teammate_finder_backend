@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Users, Subscribers
+from .models import Users, Subscribers, Friends
 
 
 def get_age_global(birthday):
@@ -25,13 +25,7 @@ class UsersSerializer(serializers.ModelSerializer):
         fields = ('username', 'first_name', 'last_name', 'city', 'age', 'gender', 'birthday', 'about_me')
 
 
-class SubscribersSerializer(serializers.ModelSerializer):
-    user = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Subscribers
-        fields = ('user',)
-
+class ParentalUsersSerializer(serializers.ModelSerializer):
     def get_user(self, obj):
         request_user_id = self.context['request'].user.id
         if obj.user1_id.id == request_user_id:
@@ -49,6 +43,40 @@ class SubscribersSerializer(serializers.ModelSerializer):
             'about_me': user_obj.about_me,
             'age': get_age_global(user_obj.birthday)
         }
+
+
+class SubscribersSerializer(ParentalUsersSerializer):
+    user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Subscribers
+        fields = ('user',)
+
+    # def get_user(self, obj):
+    #     request_user_id = self.context['request'].user.id
+    #     if obj.user1_id.id == request_user_id:
+    #         user_obj = obj.user2_id
+    #     else:
+    #         user_obj = obj.user1_id
+    #
+    #     return {
+    #         'username': user_obj.username,
+    #         'user_id': user_obj.id,
+    #         'first_name': user_obj.first_name,
+    #         'last_name': user_obj.last_name,
+    #         'city': user_obj.city,
+    #         'gender': user_obj.gender,
+    #         'about_me': user_obj.about_me,
+    #         'age': get_age_global(user_obj.birthday)
+    #     }
+
+
+class FriendsSerializer(ParentalUsersSerializer):
+    user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Friends
+        fields = ('user',)
 
 
 class RegistrationSerializer(serializers.ModelSerializer):

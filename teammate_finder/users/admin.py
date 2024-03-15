@@ -21,8 +21,8 @@ admin.site.register(Subscribers, SubscribersAdmin)
 
 
 class FriendsAdmin(admin.ModelAdmin):
-    list_display = ('friend1_id', 'friend2_id')
-    readonly_fields = ('friend1_id', 'friend2_id')
+    list_display = ('user1_id', 'user2_id')
+    # readonly_fields = ('user1_id', 'user2_id')
 
 
 admin.site.register(Friends, FriendsAdmin)

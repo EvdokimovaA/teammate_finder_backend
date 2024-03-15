@@ -35,10 +35,10 @@ class Subscribers(models.Model):
 
 
 class Friends(models.Model):
-    friend1_id = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, verbose_name='Пользователь',
-                                   related_name='friend1_id')
-    friend2_id = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, verbose_name='Друг',
-                                   related_name='friend2_id')
+    user1_id = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, verbose_name='Пользователь',
+                                 related_name='user1_id')
+    user2_id = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, verbose_name='Друг',
+                                 related_name='user2_id')
 
     class Meta:
         verbose_name = 'Друг'
