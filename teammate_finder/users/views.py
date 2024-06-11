@@ -1,8 +1,11 @@
+from django.contrib.auth import authenticate
 from rest_framework import generics, status
-from django.db.models import Q, Model
+from django.db.models import Q
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .models import Users, Subscribers, Friends
 from .serializers import UsersSerializer, RegistrationSerializer, SubscribersSerializer, FriendsSerializer
 
@@ -10,7 +13,6 @@ from .serializers import UsersSerializer, RegistrationSerializer, SubscribersSer
 # Create your views here.
 class UsersViews(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
-    # queryset = Users.objects.annotate(age=ExtractYear(Value(timezone.now())) - ExtractYear('birthday'))
     queryset = Users.objects.all()
     serializer_class = UsersSerializer
 
@@ -31,8 +33,58 @@ class RegistrationAPIView(APIView):
             status=status.HTTP_201_CREATED)
 
 
+# LoginAPIView и LogoutAPIView не удалось пока удачно протестировать через postman
+class LoginAPIView(APIView):
+    def post(self, request):
+        data = request.data
+        username = data.get('username', None)
+        password = data.get('password', None)
+
+        if username is None or password is None:
+            return Response({'error': 'Нужен и логин, и пароль'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = authenticate(username=username, password=password)
+
+        if user is None:
+            return Response({'error': 'Неверные данные'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        refresh = RefreshToken.for_user(user)
+
+        refresh.payload.update(
+            {
+                'user_id': user.id,
+                'username': user.username
+            }
+        )
+
+        return Response(
+            {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class LogoutAPIView(APIView):
+    def post(self, request):
+        refresh_token = request.data.get('refresh_token')  # С клиента нужно отправить refresh token
+
+        if not refresh_token:
+            return Response({'error': 'Необходим Refresh token'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()  # Добавить его в чёрный список
+
+        except ValueError as e:
+            return Response({'error': 'Неверный Refresh token'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'success': 'Выход успешен'}, status=status.HTTP_200_OK)
+
+
 class SubscribersAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = SubscribersSerializer
 
     def get(self, request):
@@ -86,7 +138,7 @@ class SubscribersAPIView(APIView):
 
 
 class FriendsAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = FriendsSerializer
 
     def get(self, request):
