@@ -21,6 +21,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('teammates/', include('users.urls')),
+    path('chats/', include('messenger.urls')),
     # вводишь username и пароль и получаешь access и refresh токены
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # получение нового access токена по refresh

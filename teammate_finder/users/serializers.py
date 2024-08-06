@@ -52,24 +52,6 @@ class SubscribersSerializer(ParentalUsersSerializer):
         model = Subscribers
         fields = ('user',)
 
-    # def get_user(self, obj):
-    #     request_user_id = self.context['request'].user.id
-    #     if obj.user1_id.id == request_user_id:
-    #         user_obj = obj.user2_id
-    #     else:
-    #         user_obj = obj.user1_id
-    #
-    #     return {
-    #         'username': user_obj.username,
-    #         'user_id': user_obj.id,
-    #         'first_name': user_obj.first_name,
-    #         'last_name': user_obj.last_name,
-    #         'city': user_obj.city,
-    #         'gender': user_obj.gender,
-    #         'about_me': user_obj.about_me,
-    #         'age': get_age_global(user_obj.birthday)
-    #     }
-
 
 class FriendsSerializer(ParentalUsersSerializer):
     user = serializers.SerializerMethodField()
